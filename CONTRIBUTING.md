@@ -18,7 +18,7 @@ It is responsible for:
 - **Payment splitting** — distribute a single payment across multiple recipients
 - **Dispute resolution** — allow a third-party resolver to adjudicate contested payments
 
-The contract source files have been cleared. You, as a contributor, will be building these modules from scratch by picking up open GitHub Issues.
+Core token primitives, escrow, and freeze modules are implemented and tested. Some modules (recurring payments, splitter, dispute) exist as draft files in `src/` but are not yet wired into the compiled crate. Contributors pick up open GitHub Issues to finish, extend, or expose these modules.
 
 ---
 
@@ -50,14 +50,26 @@ cd veritix-contract/veritixpay/contract/token
 
 ## Project Structure
 
-The repository is currently in a clean-slate state. Only `lib.rs` exists in `src/` — everything else will be built by contributors picking up issues.
-
 ```
 veritixpay/
 ├── contract/
 │   └── token/
 │       ├── src/
-│       │   └── lib.rs          # Entry point — start here
+│       │   ├── lib.rs              # Crate entry point — module declarations
+│       │   ├── contract.rs         # Public Soroban interface (VeritixToken)
+│       │   ├── admin.rs            # Admin storage and rotation
+│       │   ├── allowance.rs        # Spending approvals
+│       │   ├── balance.rs          # Ledger balance helpers
+│       │   ├── escrow.rs           # Escrow logic (compiled)
+│       │   ├── freeze.rs           # Account freeze/unfreeze (compiled)
+│       │   ├── metadata.rs         # Token metadata
+│       │   ├── storage_types.rs    # Shared DataKey enum and structs
+│       │   ├── test.rs             # Compiled unit tests
+│       │   ├── escrow_test.rs      # Escrow-specific tests (compiled)
+│       │   ├── admin_test.rs       # Admin rotation tests (compiled)
+│       │   ├── recurring.rs        # Draft — not yet declared in lib.rs
+│       │   ├── splitter.rs         # Draft — not yet declared in lib.rs
+│       │   └── dispute.rs          # Draft — not yet declared in lib.rs
 │       ├── Cargo.toml
 │       └── Makefile
 ├── Cargo.toml
@@ -66,7 +78,7 @@ veritixpay/
 └── README.md
 ```
 
-Each module (escrow, splitter, dispute, etc.) will live as its own `.rs` file inside `src/` and be declared in `lib.rs`. You will be building these out one issue at a time.
+Each compiled module is declared in `lib.rs` with `pub mod module_name;`. Draft files exist on disk but are **not** declared in `lib.rs` and are therefore not compiled or tested until a contributor wires them in.
 
 ---
 
@@ -146,6 +158,8 @@ Run only your tests:
 ```bash
 cargo test your_feature
 ```
+
+> **Compiled vs. dormant test files:** Only test modules declared in `lib.rs` under `#[cfg(test)]` are compiled and run by `cargo test`. A test file that exists in `src/` but is not declared in `lib.rs` is silently ignored by the compiler. When adding a new `*_test.rs` file, always add the corresponding `#[cfg(test)] mod your_test;` line to `lib.rs`.
 
 ---
 

@@ -65,7 +65,9 @@ Security is enforced natively using the Soroban SDK. Every state-changing functi
 2. Create your logic file (e.g., `new_feature.rs`) and implement the core functions.
 3. Expose the necessary interface methods in `contract.rs`.
 4. Register the module by adding `pub mod new_feature;` to `lib.rs`.
-5. Create a corresponding `new_feature_test.rs` file to ensure 100% test coverage.
+5. Create a corresponding `new_feature_test.rs` file and add `#[cfg(test)] mod new_feature_test;` to `lib.rs` so it is compiled by `cargo test`.
+
+> **Note:** A test file in `src/` that is not declared in `lib.rs` is silently ignored. Always wire both the module and its test file through `lib.rs`.
 
 ## Links
 * [Back to Root README](../README.md)

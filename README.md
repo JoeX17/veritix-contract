@@ -17,7 +17,7 @@ The contract handles **token transfers**, **escrow for ticket purchases**, **rec
 
 Escrowed funds are held temporarily on the contract's own ledger balance. When an escrow is created, tokens move from the depositor into the contract address, stay there while the escrow is unresolved, and move back out only on release or refund. This means the contract address can hold a real token balance during escrow flows without increasing total supply.
 
-This project is currently being built in the open. The contract source files have been cleared and contributors can claim open GitHub Issues to build individual modules from scratch. If you want to contribute to a real Soroban project, this is a great place to start — see the [Contributing](#contributing) section below.
+This project is actively being built in the open. Core token primitives, escrow logic, recurring payments, splitting, and dispute resolution are implemented and tested. Some draft modules exist in `src/` but are not yet wired into the crate. Contributors can claim open GitHub Issues to extend and improve existing modules. See the [Contributing](#contributing) section below.
 
 ---
 
@@ -30,20 +30,23 @@ This project is currently being built in the open. The contract source files hav
 
 ---
 
-## Contract Modules (Planned)
+## Contract Modules
 
-These modules will be built by contributors picking up open issues. The entry point is `src/lib.rs`.
+The entry point is `veritixpay/contract/token/src/lib.rs`. Modules compiled into the crate are listed below.
 
 | Module | File | Status | Description |
 |--------|------|--------|-------------|
-| Token Core | `contract.rs` | 🔜 Open | Mint, burn, transfer, approve |
-| Escrow | `escrow.rs` | 🔜 Open | Create, release, and refund escrow holds |
-| Recurring Payments | `recurring.rs` | 🔜 Open | Set up and execute recurring charges |
-| Payment Splitter | `splitter.rs` | 🔜 Open | Split a payment between multiple parties |
-| Dispute Resolution | `dispute.rs` | 🔜 Open | Open and resolve payment disputes |
-| Admin | `admin.rs` | 🔜 Open | Admin address controls |
-| Storage Types | `storage_types.rs` | 🔜 Open | Shared `DataKey` enum and struct definitions |
-| Tests | `test.rs` | 🔜 Open | Unit test suite |
+| Token Core | `contract.rs` | Compiled | Mint, burn, transfer, approve, clawback, freeze |
+| Admin | `admin.rs` | Compiled | Admin address controls and rotation |
+| Allowance | `allowance.rs` | Compiled | Third-party spending approvals |
+| Balance | `balance.rs` | Compiled | Ledger balance reads/writes |
+| Escrow | `escrow.rs` | Compiled | Create, release, and refund escrow holds |
+| Freeze | `freeze.rs` | Compiled | Regulatory account blocking |
+| Metadata | `metadata.rs` | Compiled | Token name, symbol, decimals |
+| Storage Types | `storage_types.rs` | Compiled | Shared `DataKey` enum and struct definitions |
+| Recurring Payments | `recurring.rs` | Draft | Set up and execute recurring charges (not yet exposed in `contract.rs`) |
+| Payment Splitter | `splitter.rs` | Draft | Split a payment between multiple parties (not yet exposed in `contract.rs`) |
+| Dispute Resolution | `dispute.rs` | Draft | Open and resolve payment disputes (not yet exposed in `contract.rs`) |
 
 ---
 
@@ -70,24 +73,35 @@ stellar --version
 git clone https://github.com/Lead-Studios/veritix-contract.git
 cd veritix-contract/veritixpay/contract/token
 
-make build    # compile to WASM
+make build    # compile to WASM (requires stellar CLI)
 make test     # run tests
 make fmt      # format code
 make clean    # remove build artifacts
 ```
 
+> **Note:** `make build` uses `stellar contract build` under the hood. Install the Stellar CLI with `cargo install stellar-cli`.
+
 ---
 
 ## Project Structure
-
-The repository is in a clean-slate state. Only `lib.rs` exists in `src/` — contributors will build out the modules by picking up issues.
 
 ```
 veritixpay/
 ├── contract/
 │   └── token/
 │       ├── src/
-│       │   └── lib.rs          # Entry point — start here
+│       │   ├── lib.rs              # Crate entry point — module declarations
+│       │   ├── contract.rs         # Public Soroban interface (VeritixToken)
+│       │   ├── admin.rs            # Admin storage and rotation
+│       │   ├── allowance.rs        # Spending approvals
+│       │   ├── balance.rs          # Ledger balance helpers
+│       │   ├── escrow.rs           # Escrow logic
+│       │   ├── freeze.rs           # Account freeze/unfreeze
+│       │   ├── metadata.rs         # Token metadata
+│       │   ├── storage_types.rs    # Shared DataKey enum and structs
+│       │   ├── test.rs             # Compiled unit tests
+│       │   ├── escrow_test.rs      # Escrow-specific tests
+│       │   └── admin_test.rs       # Admin rotation tests
 │       ├── Cargo.toml
 │       └── Makefile
 ├── Cargo.toml

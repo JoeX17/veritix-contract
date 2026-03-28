@@ -20,4 +20,7 @@ mod test;
 #[cfg(test)]
 mod escrow_test;
 
+#[cfg(test)]
+mod admin_test;
+
 pub use crate::contract::VeritixToken;

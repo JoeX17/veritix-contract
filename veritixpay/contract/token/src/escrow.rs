@@ -3,7 +3,7 @@ use crate::storage_types::{
     increment_counter, read_persistent_record, write_persistent_record, DataKey,
 };
 use crate::validation::require_positive_amount;
-use soroban_sdk::{contracttype, Address, Env, Symbol};
+use soroban_sdk::{contracttype, symbol_short, Address, Env, Symbol};
 
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -44,12 +44,8 @@ pub fn create_escrow(e: &Env, depositor: Address, beneficiary: Address, amount: 
 
     // Optional observability event
     e.events().publish(
-        (
-            Symbol::new(e, "escrow"),
-            Symbol::new(e, "created"),
-            depositor,
-        ),
-        (beneficiary, amount),
+        (symbol_short!("escrow_created"), depositor.clone(), beneficiary.clone()),
+        amount,
     );
 
     count
@@ -86,12 +82,8 @@ pub fn try_release_escrow(e: &Env, caller: Address, escrow_id: u32) -> Result<()
 
     // Event for observability
     e.events().publish(
-        (
-            Symbol::new(e, "escrow"),
-            Symbol::new(e, "released"),
-            escrow_id,
-        ),
-        escrow.beneficiary,
+        (symbol_short!("escrow_released"), escrow_id, escrow.beneficiary.clone()),
+        escrow.amount,
     );
 
     Ok(())
@@ -128,12 +120,8 @@ pub fn try_refund_escrow(e: &Env, caller: Address, escrow_id: u32) -> Result<(),
 
     // Event for observability
     e.events().publish(
-        (
-            Symbol::new(e, "escrow"),
-            Symbol::new(e, "refunded"),
-            escrow_id,
-        ),
-        escrow.depositor,
+        (symbol_short!("escrow_refunded"), escrow_id, escrow.depositor.clone()),
+        escrow.amount,
     );
 
     Ok(())

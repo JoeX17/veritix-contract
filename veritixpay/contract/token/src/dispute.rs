@@ -1,7 +1,7 @@
 use crate::balance::{receive_balance, spend_balance};
 use crate::escrow::get_escrow;
 use crate::storage_types::{increment_counter, write_persistent_record, DataKey};
-use soroban_sdk::{contracttype, Address, Env, Symbol};
+use soroban_sdk::{contracttype, symbol_short, Address, Env, Symbol};
 
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -53,8 +53,8 @@ pub fn open_dispute(
     e.storage().persistent().set(&DataKey::Dispute(count), &record);
 
     e.events().publish(
-        (Symbol::new(e, "dispute"), Symbol::new(e, "opened"), escrow_id),
-        claimant,
+        (symbol_short!("dispute_opened"), escrow_id, claimant.clone()),
+        (),
     );
 
     count
@@ -75,8 +75,8 @@ fn settle_escrow_by_outcome(e: &Env, escrow_id: u32, release_to_beneficiary: boo
         spend_balance(e, e.current_contract_address(), escrow.amount);
         receive_balance(e, escrow.beneficiary.clone(), escrow.amount);
         e.events().publish(
-            (Symbol::new(e, "escrow"), Symbol::new(e, "released"), escrow_id),
-            escrow.beneficiary,
+            (symbol_short!("escrow_released"), escrow_id, escrow.beneficiary.clone()),
+            escrow.amount,
         );
     } else {
         escrow.refunded = true;
@@ -84,8 +84,8 @@ fn settle_escrow_by_outcome(e: &Env, escrow_id: u32, release_to_beneficiary: boo
         spend_balance(e, e.current_contract_address(), escrow.amount);
         receive_balance(e, escrow.depositor.clone(), escrow.amount);
         e.events().publish(
-            (Symbol::new(e, "escrow"), Symbol::new(e, "refunded"), escrow_id),
-            escrow.depositor,
+            (symbol_short!("escrow_refunded"), escrow_id, escrow.depositor.clone()),
+            escrow.amount,
         );
     }
 }
@@ -125,7 +125,7 @@ pub fn resolve_dispute(
     e.storage().persistent().set(&DataKey::Dispute(dispute_id), &dispute);
 
     e.events().publish(
-        (Symbol::new(e, "dispute"), Symbol::new(e, "resolved"), dispute_id),
+        (symbol_short!("dispute_resolved"), dispute_id, resolver),
         release_to_beneficiary,
     );
 }

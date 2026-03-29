@@ -1,7 +1,7 @@
 use crate::balance::{receive_balance, spend_balance};
 use crate::storage_types::{increment_counter, DataKey};
 use crate::validation::require_positive_amount;
-use soroban_sdk::{contracttype, Address, Env, Symbol};
+use soroban_sdk::{contracttype, symbol_short, Address, Env, Symbol};
 
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -46,8 +46,8 @@ pub fn setup_recurring(
 
     // 4. Emit Observability Event
     e.events().publish(
-        (Symbol::new(e, "recurring"), Symbol::new(e, "setup"), payer),
-        (payee, amount)
+        (symbol_short!("recurring_setup"), payer.clone()),
+        (payee, amount),
     );
 
     count
@@ -80,11 +80,7 @@ pub fn execute_recurring(e: &Env, recurring_id: u32) {
         .set(&DataKey::Recurring(recurring_id), &record);
 
     e.events().publish(
-        (
-            Symbol::new(e, "recurring"),
-            Symbol::new(e, "executed"),
-            recurring_id,
-        ),
+        (symbol_short!("recurring_executed"), recurring_id),
         record.amount,
     );
 }
@@ -109,12 +105,8 @@ pub fn cancel_recurring(e: &Env, caller: Address, recurring_id: u32) {
         .set(&DataKey::Recurring(recurring_id), &record);
 
     e.events().publish(
-        (
-            Symbol::new(e, "recurring"),
-            Symbol::new(e, "cancelled"),
-            recurring_id,
-        ),
-        caller,
+        (symbol_short!("recurring_cancelled"), recurring_id, caller.clone()),
+        (),
     );
 }
 

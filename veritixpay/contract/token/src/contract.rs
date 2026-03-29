@@ -61,7 +61,7 @@ impl VeritixToken {
 
         // Emit transparency event
         e.events()
-            .publish((symbol_short!("clawback"), from), amount);
+            .publish((symbol_short!("clawback"), admin, from), amount);
     }
 
     // --- Freeze controls ---
@@ -86,7 +86,7 @@ impl VeritixToken {
         require_positive_amount(amount);
         receive_balance(&e, to.clone(), amount);
         increase_supply(&e, amount);
-        e.events().publish((symbol_short!("mint"), to), amount);
+        e.events().publish((symbol_short!("mint"), admin, to), amount);
     }
 
     /// Caller burns their own tokens.
@@ -108,7 +108,7 @@ impl VeritixToken {
         spend_allowance(&e, from.clone(), spender.clone(), amount);
         spend_balance(&e, from.clone(), amount);
         decrease_supply(&e, amount);
-        e.events().publish((symbol_short!("burn"), from), amount);
+        e.events().publish((symbol_short!("burn"), spender, from), amount);
     }
 
     // --- Transfers & allowance ---

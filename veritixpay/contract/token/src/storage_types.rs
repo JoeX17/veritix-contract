@@ -37,6 +37,8 @@ pub enum DataKey {
     Split(u32),
     DisputeCount,
     Dispute(u32),
+    // Tracks the active dispute ID for a given escrow (None = no open dispute).
+    EscrowDispute(u32),
 
     // Reserved for future multi-escrow support.
     MultiEscrowCount,

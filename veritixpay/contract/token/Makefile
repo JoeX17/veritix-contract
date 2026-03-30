@@ -18,6 +18,8 @@ test: build
 
 build:
 	stellar contract build
+	# stellar contract build outputs to wasm32v1-none (Soroban's canonical target).
+	# wasm32-unknown-unknown is only used for `cargo test` and clippy, not for WASM artifacts.
 	@ls -l ../../target/wasm32v1-none/release/*.wasm
 
 build-logs:

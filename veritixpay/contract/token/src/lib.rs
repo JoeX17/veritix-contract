@@ -11,6 +11,7 @@ pub mod dispute;
 pub mod escrow;
 pub mod freeze;
 pub mod metadata;
+pub mod recurring;
 pub mod splitter;
 pub mod storage_types;
 pub mod validation;
@@ -34,5 +35,8 @@ mod splitter_test;
 
 #[cfg(test)]
 mod dispute_test;
+
+#[cfg(test)]
+mod recurring_test;
 
 pub use crate::contract::VeritixToken;

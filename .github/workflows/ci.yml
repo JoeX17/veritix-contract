@@ -24,6 +24,9 @@ jobs:
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: "1.84.0"
+          # wasm32-unknown-unknown is needed for `cargo test` and clippy.
+          # `stellar contract build` uses wasm32v1-none internally and manages
+          # that target itself; we do not need to install it here.
           targets: wasm32-unknown-unknown
           components: rustfmt, clippy
 

@@ -127,3 +127,40 @@ fn test_open_dispute_on_settled_escrow_panics() {
         open_dispute(&e, beneficiary.clone(), escrow_id, resolver.clone());
     });
 }
+
+#[test]
+#[should_panic(expected = "DisputeAlreadyOpen")]
+fn test_duplicate_open_dispute_panics() {
+    let e = setup_env();
+    let contract_id = e.register_contract(None, VeritixToken);
+    let resolver = Address::generate(&e);
+    let (depositor, _beneficiary, escrow_id) = setup_escrow(&e, &contract_id);
+
+    e.as_contract(&contract_id, || {
+        open_dispute(&e, depositor.clone(), escrow_id, resolver.clone());
+        // Second open on the same unresolved escrow must fail.
+        open_dispute(&e, depositor.clone(), escrow_id, resolver.clone());
+    });
+}
+
+#[test]
+fn test_reopen_dispute_after_resolution() {
+    let e = setup_env();
+    let contract_id = e.register_contract(None, VeritixToken);
+    let resolver = Address::generate(&e);
+    let (depositor, _beneficiary, escrow_id) = setup_escrow(&e, &contract_id);
+
+    // Create a second escrow to reopen on (the first is settled after resolution).
+    let (depositor2, _beneficiary2, escrow_id2) = setup_escrow(&e, &contract_id);
+
+    e.as_contract(&contract_id, || {
+        let dispute_id = open_dispute(&e, depositor.clone(), escrow_id, resolver.clone());
+        resolve_dispute(&e, resolver.clone(), dispute_id, false);
+
+        // After resolution the EscrowDispute pointer is cleared; a new dispute on a
+        // different (still-open) escrow must succeed.
+        let new_id = open_dispute(&e, depositor2.clone(), escrow_id2, resolver.clone());
+        let record = get_dispute(&e, new_id);
+        assert_eq!(record.status, DisputeStatus::Open);
+    });
+}

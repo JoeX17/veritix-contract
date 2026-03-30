@@ -13,6 +13,9 @@ use crate::freeze::{freeze_account, is_frozen as read_frozen_status, unfreeze_ac
 use crate::metadata::{
     read_decimal, read_name, read_symbol, validate_metadata, write_metadata, TokenMetadata,
 };
+use crate::recurring::{
+    cancel_recurring, execute_recurring, get_recurring, setup_recurring, RecurringRecord,
+};
 use crate::splitter::{
     create_split as split_create, distribute as split_distribute, get_split as split_get,
     SplitRecord, SplitRecipient,
@@ -240,5 +243,29 @@ impl VeritixToken {
 
     pub fn get_split(e: Env, split_id: u32) -> SplitRecord {
         split_get(&e, split_id)
+    }
+
+    // --- Recurring Payments ---
+
+    pub fn setup_recurring(
+        e: Env,
+        payer: Address,
+        payee: Address,
+        amount: i128,
+        interval: u32,
+    ) -> u32 {
+        setup_recurring(&e, payer, payee, amount, interval)
+    }
+
+    pub fn execute_recurring(e: Env, recurring_id: u32) {
+        execute_recurring(&e, recurring_id)
+    }
+
+    pub fn cancel_recurring(e: Env, caller: Address, recurring_id: u32) {
+        cancel_recurring(&e, caller, recurring_id)
+    }
+
+    pub fn get_recurring(e: Env, recurring_id: u32) -> RecurringRecord {
+        get_recurring(&e, recurring_id)
     }
 }

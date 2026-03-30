@@ -40,6 +40,14 @@ pub fn open_dispute(
         panic!("Unauthorized: Only depositor or beneficiary can open a dispute");
     }
 
+    // Prevent multiple open disputes for the same escrow.
+    if e.storage()
+        .persistent()
+        .has(&DataKey::EscrowDispute(escrow_id))
+    {
+        panic!("DisputeAlreadyOpen: An open dispute already exists for this escrow");
+    }
+
     let count = increment_counter(e, &DataKey::DisputeCount);
 
     let record = DisputeRecord {
@@ -51,6 +59,9 @@ pub fn open_dispute(
     };
 
     e.storage().persistent().set(&DataKey::Dispute(count), &record);
+    e.storage()
+        .persistent()
+        .set(&DataKey::EscrowDispute(escrow_id), &count);
 
     e.events().publish(
         (Symbol::new(e, "dispute"), Symbol::new(e, "opened"), escrow_id),
@@ -123,6 +134,9 @@ pub fn resolve_dispute(
     };
 
     e.storage().persistent().set(&DataKey::Dispute(dispute_id), &dispute);
+    e.storage()
+        .persistent()
+        .remove(&DataKey::EscrowDispute(dispute.escrow_id));
 
     e.events().publish(
         (Symbol::new(e, "dispute"), Symbol::new(e, "resolved"), dispute_id),

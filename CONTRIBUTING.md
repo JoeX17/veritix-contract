@@ -37,6 +37,8 @@ rustc --version
 stellar --version
 ```
 
+**First-time setup:** Run `make preflight` from the `veritixpay/contract/token/` directory to verify all required tools are installed. This will give you fast, actionable feedback if anything is missing.
+
 ---
 
 ## Getting the Code
@@ -113,6 +115,7 @@ If you have an idea not covered by an existing issue, open one first and describ
 All commands run from inside `veritixpay/contract/token/`:
 
 ```bash
+make preflight  # verify all required tools are installed
 make build    # compile the contract to WASM
 make test     # run the full test suite
 make fmt      # format all Rust code with rustfmt

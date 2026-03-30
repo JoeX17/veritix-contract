@@ -1,7 +1,7 @@
 use crate::balance::{receive_balance, spend_balance};
 use crate::storage_types::{increment_counter, read_persistent_record, write_persistent_record, DataKey};
 use crate::validation::require_positive_amount;
-use soroban_sdk::{contracttype, Address, Env, Symbol, Vec};
+use soroban_sdk::{contracttype, symbol_short, Address, Env, Symbol, Vec};
 
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -115,8 +115,8 @@ pub fn distribute(e: &Env, caller: Address, split_id: u32) {
 
     // 4. Emit Observability Event
     e.events().publish(
-        (Symbol::new(e, "split"), Symbol::new(e, "distributed"), split_id),
-        record.total_amount
+        (symbol_short!("split_distributed"), split_id, sender),
+        total_amount,
     );
 }
 

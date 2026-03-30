@@ -21,6 +21,9 @@ mod contract;
 mod test;
 
 #[cfg(test)]
+mod event_test;
+
+#[cfg(test)]
 mod escrow_test;
 
 #[cfg(test)]

@@ -2,6 +2,17 @@ default: build
 
 all: test
 
+# Check for required tools and Rust targets
+preflight:
+	@echo "Checking prerequisites..."
+	@which stellar > /dev/null 2>&1 || (echo "❌ stellar CLI not found. Install with: cargo install stellar-cli" && exit 1)
+	@echo "✓ stellar CLI found"
+	@rustup target list --installed | grep -q wasm32-unknown-unknown || (echo "❌ wasm32-unknown-unknown target not installed. Install with: rustup target add wasm32-unknown-unknown" && exit 1)
+	@echo "✓ wasm32-unknown-unknown target installed"
+	@which cargo > /dev/null 2>&1 || (echo "❌ cargo not found. Install Rust from: https://rustup.rs" && exit 1)
+	@echo "✓ cargo found"
+	@echo "✅ All prerequisites met!"
+
 test: build
 	cargo test
 

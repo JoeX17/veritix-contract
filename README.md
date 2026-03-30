@@ -73,13 +73,14 @@ stellar --version
 git clone https://github.com/Lead-Studios/veritix-contract.git
 cd veritix-contract/veritixpay/contract/token
 
+make preflight  # verify all required tools are installed
 make build    # compile to WASM (requires stellar CLI)
 make test     # run tests
 make fmt      # format code
 make clean    # remove build artifacts
 ```
 
-> **Note:** `make build` uses `stellar contract build` under the hood. Install the Stellar CLI with `cargo install stellar-cli`.
+> **Note:** Run `make preflight` first to verify your setup. It checks for stellar CLI, Rust, and the wasm32-unknown-unknown target.
 
 ---
 

@@ -114,6 +114,21 @@ mod recurring_tests {
     }
 
     #[test]
+    #[should_panic(expected = "InsufficientBalance")]
+    fn test_execute_recurring_insufficient_balance_panics() {
+        let e = setup_env();
+        let contract_id = e.register_contract(None, VeritixToken);
+        // Fund payer with less than the recurring amount.
+        let (payer, _payee, id) = fund_and_setup(&e, &contract_id, 500, 100);
+        e.as_contract(&contract_id, || {
+            // Drain the payer balance so they can no longer cover the charge.
+            crate::balance::spend_balance(&e, payer.clone(), 500);
+            e.ledger().set_sequence_number(e.ledger().sequence() + 101);
+            execute_recurring(&e, id);
+        });
+    }
+
+    #[test]
     fn test_multiple_executions() {
         let e = setup_env();
         let contract_id = e.register_contract(None, VeritixToken);

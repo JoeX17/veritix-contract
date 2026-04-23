@@ -71,6 +71,14 @@ pub fn execute_recurring(e: &Env, recurring_id: u32) {
         panic!("interval has not elapsed");
     }
 
+    let payer_balance = crate::balance::read_balance(e, record.payer.clone());
+    if payer_balance < record.amount {
+        panic!(
+            "InsufficientBalance: payer has insufficient balance for recurring payment {}",
+            recurring_id
+        );
+    }
+
     spend_balance(e, record.payer.clone(), record.amount);
     receive_balance(e, record.payee.clone(), record.amount);
 

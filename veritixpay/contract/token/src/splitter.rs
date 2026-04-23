@@ -90,6 +90,9 @@ pub fn distribute(e: &Env, caller: Address, split_id: u32) {
         panic!("already distributed");
     }
 
+    let sender_for_event = record.sender.clone();
+    let amount_for_event = record.total_amount;
+
     let mut remaining_amount = record.total_amount;
     let len = record.recipients.len();
 
@@ -105,7 +108,7 @@ pub fn distribute(e: &Env, caller: Address, split_id: u32) {
         // Transfer from contract to recipient
         spend_balance(e, e.current_contract_address(), amount_to_send);
         receive_balance(e, recipient.address.clone(), amount_to_send);
-        
+
         remaining_amount -= amount_to_send;
     }
 
@@ -115,8 +118,8 @@ pub fn distribute(e: &Env, caller: Address, split_id: u32) {
 
     // 4. Emit Observability Event
     e.events().publish(
-        (symbol_short!("split_distributed"), split_id, sender),
-        total_amount,
+        (symbol_short!("split_distributed"), split_id, sender_for_event),
+        amount_for_event,
     );
 }
 
